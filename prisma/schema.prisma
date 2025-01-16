@@ -35,7 +35,7 @@ model Product {
   enabled     Boolean   @default(true)
   image       String
   // realtionships
-  Category    Category? @relation(fields: [categoryId], references: [id])
+  category    Category? @relation(fields: [categoryId], references: [id])
   categoryId  String?   @db.ObjectId
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
