@@ -1,12 +1,13 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { convertToSlug } from 'src/common/helpers/convert-to-slug';
+import { convertToSlug } from 'src/common/helpers';
 
 @Injectable()
 export class CategoriesService {
@@ -16,12 +17,12 @@ export class CategoriesService {
     const { name, description } = createCategoryDto;
     const slug = convertToSlug(name);
     // check if category exists
-    const gategoryExists = await this.prisma.category.findFirst({
+    const categoryExists = await this.prisma.category.findFirst({
       where: {
         name,
       },
     });
-    if (gategoryExists) {
+    if (categoryExists) {
       throw new BadRequestException('Category already exists');
     }
     // create category
@@ -48,33 +49,55 @@ export class CategoriesService {
   // pedirle el pipe al ing
   // condicion para ver el tipo
   async findOne(term: string) {
-    const category = await this.prisma.category.findFirst({
-      where: {
-        id: term,
-        // slug: term,
-      },
-      include: {
-        products: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            image: true,
-            description: true,
-            price: true,
-            stock: true,
+    try {
+      const category = await this.prisma.category.findFirst({
+        where: { id: term },
+        include: {
+          products: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              image: true,
+              price: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    if (!category) {
-      throw new NotFoundException('Category not found');
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+
+      return {
+        category,
+      };
+    } catch (error) {
+      console.log(error);
+      if (error.code == 'P2023') {
+        const category = await this.prisma.category.findFirst({
+          where: { slug: term },
+          include: {
+            products: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                image: true,
+                price: true,
+              },
+            },
+          },
+        });
+        return { category };
+      }
+
+      if (error.status === 400) {
+        throw new NotFoundException(error.response.message);
+      }
+
+      throw new InternalServerErrorException('Check system logs');
     }
-
-    return {
-      category,
-    };
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
