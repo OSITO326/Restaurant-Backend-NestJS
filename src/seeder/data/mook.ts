@@ -1,5 +1,7 @@
 import { Prisma } from '@prisma/client';
 
+// NOTE: This is a mook data, it's not real data, it's just for testing purposes
+// LEARN: search how to use faker.js
 export const pizzasCategory: Prisma.CategoryCreateInput = {
   name: 'Pizzas 🍕',
   slug: 'prizzas',
