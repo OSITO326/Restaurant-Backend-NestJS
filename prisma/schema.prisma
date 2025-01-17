@@ -32,7 +32,7 @@ model Product {
   description String
   stock       Int       @default(10) // value default
   price       Float
-  enabled     Boolean   @default(true)
+  enable      Boolean   @default(true)
   image       String
   // realtionships
   category    Category? @relation(fields: [categoryId], references: [id])
