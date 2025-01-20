@@ -88,11 +88,11 @@ export class ProductsService {
 
   async update(id: string, updateProductDto: UpdateProductDto) {
     const { name } = updateProductDto;
-    const product = await this.prisma.product.findFirst({
+    const productExists = await this.prisma.product.findFirst({
       where: { id },
     });
 
-    if (!product) {
+    if (!productExists) {
       throw new NotFoundException('Product not found');
     }
 
