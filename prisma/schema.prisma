@@ -63,7 +63,7 @@ type OrderItems {
   productName  String
   productPrice Float
   quantity     Int
-  subtotal     Float
+  subTotal     Float
 }
 
 model User {
